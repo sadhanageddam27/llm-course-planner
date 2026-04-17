@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Course Planner | Sadhana Geddam</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0f1117;
+  --bg2:    #161b27;
+  --bg3:    #1c2333;
+  --border: rgba(255,255,255,0.06);
+  --b2:     rgba(255,255,255,0.11);
+  --lime:   #a3e635;
+  --blue:   #38bdf8;
+  --violet: #a78bfa;
+  --orange: #fb923c;
+  --text:   #cbd5e1;
+  --muted:  #475569;
+  --head:   #f8fafc;
+  --mono:   'JetBrains Mono', monospace;
+  --display:'Syne', sans-serif;
+  --body:   'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.8;overflow-x:hidden}
+::selection{background:rgba(163,230,53,0.15);color:var(--lime)}
+
+/* GRID BG */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(163,230,53,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(163,230,53,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:900;height:52px;display:flex;align-items:center;padding:0 2rem;gap:1.5rem;background:rgba(15,17,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.brand{font-family:var(--display);font-size:14px;font-weight:800;color:var(--lime);margin-right:auto;letter-spacing:-0.01em}
+nav a{color:var(--muted);text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;transition:color .2s}
+nav a:hover{color:var(--lime)}
+
+/* HERO */
+.hero{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:6rem 2rem 3rem}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--lime);margin-bottom:2rem;border:1px solid rgba(163,230,53,0.2);background:rgba(163,230,53,0.05);padding:4px 14px;border-radius:2px}
+.hero-tag::before{content:'';width:6px;height:6px;background:var(--lime);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:var(--display);font-size:clamp(2.2rem,5.5vw,4.5rem);font-weight:800;color:var(--head);line-height:1.0;margin-bottom:1.25rem;letter-spacing:-0.03em}
+h1 .acc{color:var(--lime)}
+.hero-p{color:var(--muted);font-size:15px;max-width:520px;margin-bottom:3rem;line-height:1.75;font-weight:300}
+
+/* STAT ROW */
+.stats{display:flex;gap:0;border:1px solid var(--border);border-radius:4px;overflow:hidden;width:fit-content;position:relative;z-index:1}
+.s{padding:1rem 1.5rem;border-right:1px solid var(--border);background:var(--bg2);min-width:130px}
+.s:last-child{border-right:none}
+.sv{font-family:var(--display);font-size:1.6rem;font-weight:800;display:block;line-height:1;margin-bottom:4px}
+.sl{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em}
+
+/* MAIN */
+main{max-width:960px;margin:0 auto;padding:3rem 2rem 6rem;position:relative;z-index:1}
+section{margin-bottom:5rem}
+
+/* SEC HEADERS */
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.sn{font-family:var(--mono);font-size:9px;color:var(--lime);letter-spacing:0.15em;text-transform:uppercase;background:rgba(163,230,53,0.07);border:1px solid rgba(163,230,53,0.2);padding:3px 8px;border-radius:2px}
+h2{font-family:var(--display);font-size:1.4rem;font-weight:800;color:var(--head);letter-spacing:-0.02em}
+h3{font-family:var(--mono);font-size:10px;color:var(--lime);letter-spacing:0.12em;text-transform:uppercase;margin:2rem 0 .75rem}
+p{color:#94a3b8;font-weight:300;margin-bottom:1rem}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card p{margin:0}
+
+/* PIPELINE STEPS */
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem}
+.pipe-cell{background:var(--bg2);padding:1.25rem;position:relative}
+.pipe-cell::after{content:attr(data-arrow);position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--lime);font-family:var(--mono);font-size:12px;z-index:2}
+.pipe-cell:last-child::after{display:none}
+.pipe-n{font-family:var(--display);font-size:2rem;font-weight:800;color:var(--lime);line-height:1;opacity:0.3}
+.pipe-title{font-family:var(--mono);font-size:11px;color:var(--head);margin:6px 0 4px;font-weight:500}
+.pipe-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* PROMPT BLOCK */
+.prompt-block{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--lime);border-radius:0 4px 4px 0;padding:1.25rem 1.5rem;margin:1rem 0;font-family:var(--mono);font-size:12px;line-height:1.9}
+.prompt-block .sys{color:var(--violet)}
+.prompt-block .usr{color:var(--blue)}
+.prompt-block .kw{color:var(--lime)}
+.prompt-block .cm{color:var(--muted)}
+.pb-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--lime);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.pb-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* OUTPUT BLOCK */
+.output-block{background:#0a0f0a;border:1px solid rgba(163,230,53,0.15);border-radius:4px;padding:1.25rem 1.5rem;margin:1rem 0;font-family:var(--mono);font-size:12px;line-height:1.9}
+.ob-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--lime);margin-bottom:.75rem;opacity:0.6}
+.output-block .ok{color:var(--lime)}
+.output-block .key{color:var(--blue)}
+.output-block .val{color:#94a3b8}
+.output-block .step{color:var(--orange)}
+
+/* PART CARDS */
+.part-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.part-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem;transition:border-color .3s}
+.part-card:hover{border-color:var(--b2)}
+.pc-num{font-family:var(--display);font-size:2.5rem;font-weight:800;color:var(--lime);opacity:0.2;line-height:1}
+.pc-title{font-family:var(--mono);font-size:11px;color:var(--head);margin:6px 0 8px;font-weight:500;letter-spacing:0.03em}
+.pc-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.pc-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px}
+
+/* TABLE */
+.tw{border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:.6rem 1rem;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--lime);border-bottom:1px solid var(--border);background:rgba(163,230,53,0.04);font-weight:400}
+td{padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,0.03);font-family:var(--mono);font-size:12px;color:#94a3b8}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.hi{color:var(--lime)!important}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:1.25rem 0}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;border:1px solid}
+.tg{color:var(--lime);border-color:rgba(163,230,53,0.2);background:rgba(163,230,53,0.05)}
+.tb{color:var(--blue);border-color:rgba(56,189,248,0.2);background:rgba(56,189,248,0.05)}
+.tv{color:var(--violet);border-color:rgba(167,139,250,0.2);background:rgba(167,139,250,0.05)}
+.to{color:var(--orange);border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.05)}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:2rem;border:1px solid var(--border)}
+.mc{background:var(--bg2);padding:1.25rem;text-align:center}
+.mv{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--lime);display:block;margin-bottom:4px}
+.ml{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);position:relative;z-index:1}
+footer a{color:var(--lime);text-decoration:none}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-tag{animation:fadeUp .4s ease both}
+h1{animation:fadeUp .4s .1s ease both}
+.hero-p{animation:fadeUp .4s .2s ease both}
+.stats{animation:fadeUp .4s .3s ease both}
+
+@media(max-width:640px){
+  .pipeline,.part-grid,.metrics{grid-template-columns:1fr}
+  nav a{display:none}
+  .stats{flex-direction:column;width:100%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Sadhana Geddam</span>
+  <a href="#overview">overview</a>
+  <a href="#parts">parts</a>
+  <a href="#prompts">prompts</a>
+  <a href="#results">results</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">NLP · LLM · Prompt Engineering · Python</div>
+  <h1>LLM-Based<br><span class="acc">Course Planner</span></h1>
+  <p class="hero-p">Personalized academic course planning system powered by a locally-hosted LLM — using structured JSON prompting, retry logic, Chain-of-Thought reasoning, and multi-step decomposition to generate reliable learning paths.</p>
+  <div class="stats">
+    <div class="s"><span class="sv" style="color:var(--lime)">4</span><span class="sl">prompting techniques</span></div>
+    <div class="s"><span class="sv" style="color:var(--blue)">3</span><span class="sl">retry attempts</span></div>
+    <div class="s"><span class="sv" style="color:var(--violet)">CoT</span><span class="sl">chain-of-thought</span></div>
+    <div class="s"><span class="sv" style="color:var(--orange)">JSON</span><span class="sl">structured output</span></div>
+  </div>
+</div>
+
+<main>
+
+<section id="overview">
+  <div class="sh"><span class="sn">00</span><h2>Overview</h2></div>
+  <p>This project builds a course planning assistant that takes a student's academic background and target course, then queries a local LLM API to generate structured, step-by-step learning path recommendations. Four progressively sophisticated prompting strategies were implemented and compared.</p>
+
+  <div class="tags">
+    <span class="tag tg">Python</span>
+    <span class="tag tg">Prompt Engineering</span>
+    <span class="tag tb">LLM API</span>
+    <span class="tag tb">JSON Parsing</span>
+    <span class="tag tv">Chain-of-Thought</span>
+    <span class="tag tv">Multi-step Reasoning</span>
+    <span class="tag to">Retry Logic</span>
+    <span class="tag to">Error Handling</span>
+  </div>
+
+  <h3>System Pipeline</h3>
+  <div class="pipeline">
+    <div class="pipe-cell" data-arrow="→">
+      <div class="pipe-n">01</div>
+      <div class="pipe-title">Student Input</div>
+      <div class="pipe-desc">Department, degree level, completed courses, target course</div>
+    </div>
+    <div class="pipe-cell" data-arrow="→">
+      <div class="pipe-n">02</div>
+      <div class="pipe-title">Prompt Build</div>
+      <div class="pipe-desc">Dynamic prompt with course catalog, constraints, and output format</div>
+    </div>
+    <div class="pipe-cell" data-arrow="→">
+      <div class="pipe-n">03</div>
+      <div class="pipe-title">LLM Query</div>
+      <div class="pipe-desc">POST to local API with retry logic on malformed responses</div>
+    </div>
+    <div class="pipe-cell">
+      <div class="pipe-n">04</div>
+      <div class="pipe-title">Structured Plan</div>
+      <div class="pipe-desc">Parsed JSON learning path with ordered prerequisite steps</div>
+    </div>
+  </div>
+</section>
+
+<section id="parts">
+  <div class="sh"><span class="sn">01</span><h2>Four Prompting Strategies</h2></div>
+
+  <div class="part-grid">
+    <div class="part-card">
+      <div class="pc-num">1</div>
+      <div class="pc-title">Zero-Shot JSON Prompting</div>
+      <div class="pc-desc">Single prompt instructing the LLM to return only a valid JSON object with prerequisites and learning path. No examples provided.</div>
+      <span class="pc-tag" style="background:rgba(163,230,53,0.07);color:var(--lime);border:1px solid rgba(163,230,53,0.2)">structured output</span>
+    </div>
+    <div class="part-card">
+      <div class="pc-num">2</div>
+      <div class="pc-title">Retry Logic + JSON Repair</div>
+      <div class="pc-desc">Added automatic retry on malformed JSON — strips comments, sanitizes response, re-queries up to 3 times before fallback. Handles LLM hallucinations gracefully.</div>
+      <span class="pc-tag" style="background:rgba(251,146,60,0.07);color:var(--orange);border:1px solid rgba(251,146,60,0.2)">error handling</span>
+    </div>
+    <div class="part-card">
+      <div class="pc-num">3a</div>
+      <div class="pc-title">Chain-of-Thought (CoT)</div>
+      <div class="pc-desc">Explicit multi-step reasoning — LLM identifies required concepts, compares with student background, identifies gaps, then recommends only courses from the catalog.</div>
+      <span class="pc-tag" style="background:rgba(167,139,250,0.07);color:var(--violet);border:1px solid rgba(167,139,250,0.2)">CoT reasoning</span>
+    </div>
+    <div class="part-card">
+      <div class="pc-num">3b</div>
+      <div class="pc-title">Multi-Step Decomposition</div>
+      <div class="pc-desc">Breaks the task into 3 independent LLM calls: (1) required knowledge topics, (2) gap analysis, (3) course recommendations — each step feeds the next.</div>
+      <span class="pc-tag" style="background:rgba(56,189,248,0.07);color:var(--blue);border:1px solid rgba(56,189,248,0.2)">pipeline decomposition</span>
+    </div>
+  </div>
+</section>
+
+<section id="prompts">
+  <div class="sh"><span class="sn">02</span><h2>Prompts &amp; Outputs</h2></div>
+
+  <h3>Part 1 — Zero-Shot JSON Prompt</h3>
+  <div class="prompt-block">
+    <div class="pb-label">System Prompt</div>
+    <span class="sys">You are an academic advisor. Based on the student profile and available
+courses, return only a valid JSON object. Do not add any explanation,
+notes, or markdown.</span><br><br>
+    <span class="cm">Student Profile:</span><br>
+    <span class="kw">Department:</span> <span class="usr">Computer Science</span><br>
+    <span class="kw">Level:</span> <span class="usr">Undergraduate</span><br>
+    <span class="kw">Completed:</span> <span class="usr">CSCI 256, CSCI 356, CSCI 343</span><br>
+    <span class="kw">Target Course:</span> <span class="usr">Deep Learning</span>
+  </div>
+
+  <div class="output-block">
+    <div class="ob-label">LLM Response — Parsed JSON</div>
+    <span class="key">"target_course"</span>: <span class="val">"CSCI 492 Deep Learning (Undergraduate)"</span>,<br>
+    <span class="key">"recommended_prerequisites"</span>: [<br>
+    &nbsp;&nbsp;{ <span class="key">"course_number"</span>: <span class="val">"CSCI 356"</span>, <span class="key">"course_name"</span>: <span class="val">"Data Structures in Python"</span> },<br>
+    &nbsp;&nbsp;{ <span class="key">"course_number"</span>: <span class="val">"CSCI 343"</span>, <span class="key">"course_name"</span>: <span class="val">"Fundamentals of Data Science"</span> }<br>
+    ],<br>
+    <span class="key">"suggested_learning_path"</span>: [<br>
+    &nbsp;&nbsp;{ <span class="step">"step": 1</span>, <span class="key">"course_number"</span>: <span class="val">"CSCI 343"</span> },<br>
+    &nbsp;&nbsp;{ <span class="step">"step": 2</span>, <span class="key">"course_number"</span>: <span class="val">"CSCI 632"</span>, <span class="key">"course_name"</span>: <span class="val">"Machine Learning"</span> },<br>
+    &nbsp;&nbsp;{ <span class="step">"step": 3</span>, <span class="key">"course_number"</span>: <span class="val">"CSCI 492"</span>, <span class="key">"course_name"</span>: <span class="val">"Deep Learning"</span> }<br>
+    ]
+  </div>
+
+  <h3>Part 3b — Multi-Step Decomposition Output</h3>
+  <div class="output-block">
+    <div class="ob-label">Step 1 — Required Knowledge Topics</div>
+    <span class="ok">✓</span> Programming in Python<br>
+    <span class="ok">✓</span> Machine Learning<br>
+    <span class="ok">✓</span> Optimization Algorithms (e.g., Gradient Descent)<br>
+    <span class="ok">✓</span> Data Handling and Preprocessing<br>
+    <span class="ok">✓</span> Neural Networks (basic architecture, backpropagation)
+  </div>
+
+  <div class="output-block">
+    <div class="ob-label">Step 2 — Gap Analysis</div>
+    <span class="ok">✓</span> Python — covered via CSCI 256<br>
+    <span class="ok">✓</span> Data Science basics — covered via CSCI 343<br>
+    <span class="val">✗ Machine Learning — not taken, gap identified</span><br>
+    <span class="val">✗ Neural Networks — not taken, gap identified</span><br>
+    <span class="val">✗ Optimization Algorithms — gap identified</span>
+  </div>
+
+  <div class="output-block">
+    <div class="ob-label">Step 3 — Final Learning Path</div>
+    <span class="step">Step 1:</span> <span class="ok">CSCI 632</span> — Machine Learning<br>
+    <span class="step">Step 2:</span> <span class="ok">CSCI 356</span> — Data Structures in Python<br>
+    <span class="step">Final:</span> <span class="ok">CSCI 492</span> — Deep Learning (Target)
+  </div>
+</section>
+
+<section id="results">
+  <div class="sh"><span class="sn">03</span><h2>Technique Comparison</h2></div>
+
+  <div class="metrics">
+    <div class="mc"><span class="mv">4</span><span class="ml">prompting strategies</span></div>
+    <div class="mc"><span class="mv" style="color:var(--blue)">3</span><span class="ml">max retry attempts</span></div>
+    <div class="mc"><span class="mv" style="color:var(--violet)">3</span><span class="ml">decomposed LLM calls</span></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Part</th><th>Technique</th><th>Output Format</th><th>Reliability</th><th>Key Feature</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Zero-shot JSON</td><td>JSON</td><td>Moderate</td><td>Simple, fast</td></tr>
+        <tr><td>2</td><td>Retry + JSON repair</td><td>JSON</td><td class="hi">High</td><td>Handles malformed responses</td></tr>
+        <tr><td>3a</td><td>Chain-of-Thought</td><td>Free text → structured</td><td class="hi">High</td><td>Explicit reasoning steps</td></tr>
+        <tr><td class="hi">3b</td><td class="hi">Multi-step decomposition</td><td class="hi">3 × JSON</td><td class="hi">Highest</td><td class="hi">Each step verifiable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <p>Multi-step decomposition (Part 3b) produced the most reliable and explainable results — breaking the problem into independent LLM calls means each step can be validated separately, hallucinations are caught early, and the reasoning chain is fully transparent. Chain-of-Thought (3a) improved reasoning quality by forcing the model to justify each recommendation before committing to a course suggestion.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Sadhana Geddam &nbsp;·&nbsp; LLM Course Planner &nbsp;·&nbsp; Prompt Engineering &nbsp;·&nbsp;
+  <a href="https://github.com/sadhanageddam27">github.com/sadhanageddam27</a>
+</footer>
+
+</body>
+</html>
